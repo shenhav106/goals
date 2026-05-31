@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דף מטרות שבועי</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F7F5F0;--surface:#FFF;--surface2:#F0EDE6;
+    --border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.14);
+    --text:#1A1A1A;--text2:#6B6760;--text3:#A09C96;
+    --green:#1D9E75;--green-light:#E1F5EE;--green-text:#085041;
+    --blue:#2563EB;--blue-light:#EFF6FF;--blue-text:#1E3A8A;
+    --amber:#D97706;--amber-light:#FFFBEB;
+    --red:#DC2626;--red-light:#FEF2F2;
+    --radius:12px;--radius-sm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+  .app{max-width:560px;margin:0 auto;padding:0 16px 80px}
+  .top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+  .top-bar-title{font-size:15px;font-weight:500}
+  .top-bar-sub{font-size:12px;color:var(--text2)}
+  .logo-dot{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-dot svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .phase{display:none}.phase.active{display:block}
+  .page-pad{padding:20px 0}
+  .sec-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+  input[type=text],input[type=time],textarea{font-family:'Heebo',sans-serif;font-size:14px;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);outline:none;transition:border-color .15s}
+  input[type=text]:focus,input[type=time]:focus,textarea:focus{border-color:var(--green);background:white}
+  textarea{resize:vertical;min-height:56px;line-height:1.5}
+  .field-label{font-size:12px;color:var(--text2);margin-bottom:5px;display:block}
+  .field{margin-bottom:10px}.field:last-child{margin-bottom:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .goal-block{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;position:relative}
+  .goal-num{width:20px;height:20px;border-radius:50%;background:var(--green-light);color:var(--green-text);font-size:11px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .remove-btn{position:absolute;top:10px;left:10px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:2px}
+  .remove-btn:hover{color:var(--red)}
+  .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
+  .day-chip{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:5px 0;font-size:11px;text-align:center;cursor:pointer;user-select:none;transition:all .15s}
+  .day-chip.selected{background:var(--green);border-color:var(--green);color:white}
+  .add-btn{background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:9px;width:100%;cursor:pointer;color:var(--text2);font-size:13px;font-family:'Heebo',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px}
+  .add-btn:hover{background:var(--surface2);border-color:var(--green);color:var(--green)}
+  .btn-primary{background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:11px 20px;font-size:14px;font-weight:500;font-family:'Heebo',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
+  .btn-primary:hover{opacity:.88}.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-danger{background:var(--red);color:white;border:none;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:500;font-family:'Heebo',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn-ghost{background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-family:'Heebo',sans-serif;cursor:pointer;color:var(--text2);display:inline-flex;align-items:center;gap:6px}
+  .btn-ghost:hover{background:var(--surface2)}
+  .btn-row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+  .home-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;cursor:pointer;transition:border-color .15s,transform .1s;text-align:center}
+  .home-card:hover{border-color:var(--green);transform:translateY(-1px)}
+  .home-card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px}
+  .icon-teacher{background:var(--blue-light)}.icon-student{background:var(--green-light)}
+  .home-card-title{font-size:14px;font-weight:500;margin-bottom:4px}
+  .home-card-sub{font-size:12px;color:var(--text2)}
+  .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500}
+  .tag-green{background:var(--green-light);color:var(--green-text)}
+  .tag-amber{background:var(--amber-light);color:var(--amber)}
+  .tag-red{background:var(--red-light);color:var(--red)}
+  .tag-blue{background:var(--blue-light);color:var(--blue-text)}
+  .prog-wrap{height:5px;background:var(--surface2);border-radius:3px;margin:6px 0}
+  .prog-bar{height:5px;border-radius:3px;transition:width .4s}
+  .copy-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+  .spinner{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:12px 0}
+  .dots{display:inline-flex;gap:3px}
+  .dots span{width:5px;height:5px;border-radius:50%;background:var(--text2);animation:bounce 1.2s infinite}
+  .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+  .divider{height:1px;background:var(--border);margin:12px 0}
+  .back-btn{background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:4px;display:flex;align-items:center;flex-shrink:0}
+  .back-btn:hover{color:var(--text)}
+  .page-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .page-header-text{flex:1}
+  .page-header-title{font-size:16px;font-weight:500}
+  .page-header-sub{font-size:12px;color:var(--text2)}
+  .student-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+  .student-row:last-child{border-bottom:none}
+  .week-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .week-row:last-child{border-bottom:none}
+  .success-screen{text-align:center;padding:32px 16px}
+  .success-icon{width:56px;height:56px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+  .day-section{margin-bottom:16px}
+  .day-header{font-size:14px;font-weight:500;padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+  .day-header.today{background:var(--green-light);color:var(--green-text)}
+  .day-header.other{background:var(--surface2);color:var(--text2)}
+  .goal-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;transition:all .2s}
+  .goal-row.done{background:var(--green-light);border-color:var(--green)}
+  .goal-row label{display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;min-width:0}
+  .goal-row label input[type=checkbox]{width:20px;height:20px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
+  .goal-text{font-size:13px;flex:1}
+  .goal-text.strike{text-decoration:line-through;color:var(--text2)}
+  .time-badge{font-size:11px;background:var(--blue-light);color:var(--blue-text);padding:2px 7px;border-radius:10px;flex-shrink:0;white-space:nowrap}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--green);color:white;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:500;z-index:999;transition:transform .3s ease;white-space:nowrap;box-shadow:0 4px 16px rgba(29,158,117,.4);pointer-events:none}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .notif-bar{background:var(--amber-light);border:1px solid var(--amber);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .request-card{background:var(--amber-light);border:1px solid var(--amber);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+  .pending-badge{background:var(--red);color:white;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:4px}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .stat-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center}
+  .stat-num{font-size:22px;font-weight:500}.stat-label{font-size:11px;color:var(--text2);margin-bottom:2px}
+
+  .install-banner {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+    background: white; border-top: 1px solid var(--border);
+    padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,.1);
+    transform: translateY(100%); transition: transform .3s ease;
+  }
+  .install-banner.show { transform: translateY(0); }
+  .install-banner-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .install-banner-sub { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+  .install-steps { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; font-size: 13px; line-height: 1.8; }
+  .install-banner-btns { display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="logo-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+  <div style="flex:1">
+    <div class="top-bar-title">דף מטרות שבועי</div>
+    <div class="top-bar-sub" id="top-sub">בחר תפקיד</div>
+  </div>
+  <div id="pending-indicator" style="display:none;cursor:pointer" onclick="showPhase('phase-teacher-home')">
+    <span class="pending-badge" id="pending-count">0</span>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<div class="app">
+
+<!-- HOME -->
+<div id="phase-home" class="phase active page-pad">
+  <div class="home-grid">
+    <div class="home-card" onclick="startTeacher()">
+      <div class="home-card-icon icon-teacher">👩‍🏫</div>
+      <div class="home-card-title">מורה / מאמן</div>
+      <div class="home-card-sub">ניהול תכניות ותלמידים</div>
+    </div>
+    <div class="home-card" onclick="startStudent()">
+      <div class="home-card-icon icon-student">📓</div>
+      <div class="home-card-title">תלמיד</div>
+      <div class="home-card-sub">מעקב שבועי ומשוב</div>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER HOME -->
+<div id="phase-teacher-home" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title">ממשק מורה</div></div>
+  </div>
+  <div id="pending-requests-section"></div>
+  <div class="btn-row" style="justify-content:flex-start;margin-bottom:12px">
+    <button class="btn-primary" onclick="showPhase('phase-teacher')">＋ תכנית חדשה</button>
+  </div>
+  <div id="students-list-section"></div>
+</div>
+
+<!-- TEACHER BUILD -->
+<div id="phase-teacher" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-teacher-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title">בניית תכנית</div><div class="page-header-sub">מלא יחד עם התלמיד</div></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">פרטי תלמיד</div>
+    <div class="field"><label class="field-label">שם התלמיד</label><input type="text" id="student-name" placeholder="לדוגמה: יובל כהן"></div>
+    <div class="field"><label class="field-label">מזהה כניסה</label><input type="text" id="student-id" placeholder="לדוגמה: yuval2025"></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרה ראשית</div>
+    <div class="field"><input type="text" id="main-goal" placeholder="לדוגמה: לפתח שגרת בוקר עקבית"></div>
+    <div class="field"><label class="field-label">למה זה חשוב לי?</label><textarea id="why-goal" placeholder="כתוב בקצרה..."></textarea></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרות קטנות</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">לכל מטרה בחר ימים ושעת התרעה</p>
+    <div id="goals-container"></div>
+    <button class="add-btn" onclick="addGoal()">＋ הוסף מטרה קטנה</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" id="save-btn" onclick="savePlan()">💾 שמור ושתף</button>
+  </div>
+</div>
+
+<!-- EDIT PLAN (teacher) -->
+<div id="phase-edit" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-teacher-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title">עריכת תכנית</div><div class="page-header-sub" id="edit-sub"></div></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרה ראשית</div>
+    <div class="field"><input type="text" id="edit-main-goal" placeholder="מטרה ראשית"></div>
+    <div class="field"><label class="field-label">למה זה חשוב לי?</label><textarea id="edit-why-goal"></textarea></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרות קטנות</div>
+    <div id="edit-goals-container"></div>
+    <button class="add-btn" onclick="addEditGoal()">＋ הוסף מטרה</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="saveEditedPlan()">💾 שמור עריכה</button>
+  </div>
+</div>
+
+<!-- SAVED -->
+<div id="phase-saved" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-teacher-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title">תכנית נשמרה ✓</div></div>
+  </div>
+  <div class="card">
+    <div class="success-screen">
+      <div class="success-icon">✓</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:6px" id="saved-name"></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px" id="saved-goal"></div>
+      <div style="background:var(--green-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;text-align:right">
+        <div style="font-size:12px;color:var(--green-text);font-weight:500;margin-bottom:6px">שלח לתלמיד:</div>
+        <div style="font-size:13px">1. פתח את האפליקציה → "תלמיד"</div>
+        <div style="font-size:13px">2. הכנס מזהה: <strong id="saved-id" style="color:var(--green);font-size:15px"></strong></div>
+      </div>
+      <button class="btn-primary" onclick="showPhase('phase-teacher-home')">← חזור לניהול</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT LOGIN -->
+<div id="phase-student-login" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title">כניסת תלמיד</div></div>
+  </div>
+  <div class="card">
+    <div class="field"><label class="field-label">מזהה כניסה</label><input type="text" id="login-id" placeholder="לדוגמה: yuval2025"></div>
+    <button class="btn-primary" id="login-btn" onclick="loginStudent()" style="width:100%;justify-content:center">כניסה →</button>
+    <div id="login-error" style="font-size:13px;color:var(--red);margin-top:8px;display:none"></div>
+    <div id="login-loading" class="spinner" style="display:none"><div class="dots"><span></span><span></span><span></span></div> מחפש תכנית...</div>
+  </div>
+</div>
+
+<!-- STUDENT TRACK -->
+<div id="phase-track" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-home')">→</button>
+    <div class="page-header-text">
+      <div class="page-header-title" id="track-name"></div>
+      <div class="page-header-sub" id="track-goal-sub"></div>
+    </div>
+    <span class="tag tag-blue" id="track-week-badge"></span>
+  </div>
+  <div id="edit-request-bar" style="display:none"></div>
+  <div id="notif-bar" class="notif-bar" style="display:none" onclick="requestNotif()">🔔 לחץ לאפשר התרעות</div>
+  <div id="track-container"></div>
+  <div style="margin-bottom:12px">
+    <button class="btn-ghost" style="width:100%;justify-content:center;font-size:13px" onclick="addAllToCalendar()">
+      📅 הוסף תזכורות ל-Google Calendar
+    </button>
+  </div>
+  <div class="btn-row" style="justify-content:space-between">
+    <button class="btn-ghost" onclick="requestEdit()" style="font-size:13px">✏️ בקש הרשאת עריכה</button>
+    <button class="btn-primary" onclick="submitWeek()">שלח סיכום ✨</button>
+  </div>
+</div>
+
+<!-- REQUEST EDIT MODAL -->
+<div id="phase-request-edit" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-track')">→</button>
+    <div class="page-header-text"><div class="page-header-title">בקשת הרשאת עריכה</div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:14px;margin-bottom:12px">הסבר למורה מדוע אתה מבקש לערוך את המטרות:</p>
+    <div class="field"><textarea id="edit-reason" placeholder="לדוגמה: רוצה להוסיף מטרה חדשה / המטרה קשה מדי..." style="min-height:80px"></textarea></div>
+    <div id="request-status" style="font-size:13px;color:var(--text2);margin-bottom:8px;display:none"></div>
+    <button class="btn-primary" id="send-request-btn" onclick="sendEditRequest()" style="width:100%;justify-content:center">שלח בקשה למורה</button>
+  </div>
+</div>
+
+<!-- STUDENT EDIT -->
+<div id="phase-student-edit" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-track')">→</button>
+    <div class="page-header-text"><div class="page-header-title">עריכת מטרות</div><div class="page-header-sub">הרשאה אושרה ✓</div></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרה ראשית</div>
+    <div class="field"><input type="text" id="s-edit-main" placeholder="מטרה ראשית"></div>
+    <div class="field"><label class="field-label">למה זה חשוב לי?</label><textarea id="s-edit-why"></textarea></div>
+  </div>
+  <div class="card">
+    <div class="sec-label">מטרות קטנות</div>
+    <div id="s-edit-goals"></div>
+    <button class="add-btn" onclick="addStudentEditGoal()">＋ הוסף מטרה</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="saveStudentEdit()">💾 שמור שינויים</button>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div id="phase-feedback" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-track')">→</button>
+    <div class="page-header-text"><div class="page-header-title">סיכום השבוע</div><div class="page-header-sub" id="fb-label"></div></div>
+  </div>
+  <div id="loading-fb" class="spinner" style="display:none"><div class="dots"><span></span><span></span><span></span></div> שולח נתונים...</div>
+  <div id="feedback-container"></div>
+  <div id="summary-section" style="display:none">
+    <div class="divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:500;color:var(--text2)">סיכום לשליחה למורה</div>
+      <button class="btn-ghost" onclick="copySummary()" style="font-size:12px;padding:6px 10px" id="copy-btn">📋 העתק</button>
+    </div>
+    <div class="copy-box" id="copy-text"></div>
+    <div class="btn-row"><button class="btn-primary" onclick="startNewWeek()">🔄 שבוע חדש</button></div>
+  </div>
+</div>
+
+<!-- TEACHER STUDENT DATA -->
+<div id="phase-student-data" class="phase page-pad">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPhase('phase-teacher-home')">→</button>
+    <div class="page-header-text"><div class="page-header-title" id="sd-name"></div><div class="page-header-sub" id="sd-goal"></div></div>
+  </div>
+  <div id="student-data-container"></div>
+</div>
+
+
+<!-- INSTALL BANNER -->
+<div id="install-banner" class="install-banner">
+  <div class="install-banner-title">🔔 קבל התרעות בשעות המטרות</div>
+  <div class="install-banner-sub">הוסף את האפליקציה למסך הבית כדי לקבל התרעות</div>
+  <div class="install-steps" id="install-steps"></div>
+  <div class="install-banner-btns">
+    <button class="btn-primary" style="font-size:13px;padding:9px 16px" onclick="dismissInstallBanner()">הבנתי ✓</button>
+    <button class="btn-ghost" style="font-size:13px;padding:9px 16px" onclick="dismissInstallBanner(true)">אל תציג שוב</button>
+  </div>
+</div>
+
+</div>
+<script>
+const SHEETS_URL='https://script.google.com/macros/s/AKfycby8xRC8gZmwpz2BR3sPmyYAzFpSX4YU4OMV3MUhlKUCUqVsQ6pDFrMDgXinshQmaErO/exec';
+const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const DAY_SHORT=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+const CHEERS=['🌟 כל הכבוד! עשית את זה!','💪 מעולה! אתה על הדרך!','🎉 יפה מאוד! המשך כך!','🔥 אש! אתה מדהים!','✨ ממש גאה בך!','🚀 פנטסטי! אתה מתקדם!','🏆 כבוד! הרגל חדש בדרך!','💫 וואו! שמור על המומנטום!'];
+
+let goals=[],editGoals=[],studentEditGoals=[];
+let currentPlan=null,currentStudentId=null,editingPlan=null;
+let notifInterval=null,toastT=null;
+
+function showPhase(id){
+  document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  const L={'phase-home':'בחר תפקיד','phase-teacher-home':'ממשק מורה','phase-teacher':'בניית תכנית','phase-edit':'עריכה','phase-saved':'נשמר','phase-student-login':'כניסת תלמיד','phase-track':'מעקב שבועי','phase-feedback':'סיכום','phase-request-edit':'בקשת עריכה','phase-student-edit':'עריכת מטרות','phase-student-data':'נתוני תלמיד'};
+  document.getElementById('top-sub').textContent=L[id]||'';
+  if(id==='phase-teacher-home') loadTeacherHome();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+function init(){addGoal();addGoal();}
+
+// ── TEACHER HOME ───────────────────────────────────────
+
+async function startTeacher(){
+  showPhase('phase-teacher-home');
+}
+
+async function loadTeacherHome(){
+  const sec=document.getElementById('students-list-section');
+  const reqSec=document.getElementById('pending-requests-section');
+  sec.innerHTML=`<div class="spinner"><div class="dots"><span></span><span></span><span></span></div> טוען תלמידים...</div>`;
+  reqSec.innerHTML='';
+  try{
+    const res=await fetch(SHEETS_URL+'?action=getAll');
+    const data=await res.json();
+    if(data.status==='ok'){
+      const plans=data.plans||[];
+      // Pending edit requests
+      const pending=plans.filter(p=>p.editRequest&&p.editRequest.status==='pending');
+      if(pending.length>0){
+        document.getElementById('pending-indicator').style.display='block';
+        document.getElementById('pending-count').textContent=pending.length;
+        reqSec.innerHTML=`<div style="font-size:13px;font-weight:500;color:var(--amber);margin-bottom:8px">⏳ בקשות עריכה ממתינות (${pending.length})</div>`+
+          pending.map(p=>`
+            <div class="request-card">
+              <div style="font-size:14px;font-weight:500;margin-bottom:4px">${p.studentName||p.studentId} מבקש לערוך</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:10px">סיבה: ${p.editRequest.reason||'לא צוין'}</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn-primary" style="font-size:13px;padding:8px 14px" onclick="respondToRequest('${p.studentId}','approved')">✓ אשר</button>
+                <button class="btn-danger" style="font-size:13px;padding:8px 14px" onclick="respondToRequest('${p.studentId}','rejected')">✕ דחה</button>
+              </div>
+            </div>`).join('');
+      } else {
+        document.getElementById('pending-indicator').style.display='none';
+        reqSec.innerHTML='';
+      }
+      // Students list
+      if(plans.length===0){
+        sec.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px">אין תלמידים עדיין</div>`;
+      } else {
+        sec.innerHTML=`<div class="sec-label" style="margin-bottom:8px">תלמידים</div><div class="card" style="padding:8px 14px">`+
+          plans.map(p=>`
+            <div class="student-row">
+              <div>
+                <div style="font-size:14px;font-weight:500">${p.studentName||p.studentId}</div>
+                <div style="font-size:12px;color:var(--text2)">${p.mainGoal}</div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span class="tag tag-blue" style="font-size:11px">שבוע ${(p.weeks||[]).length}</span>
+                <button class="btn-ghost" style="font-size:12px;padding:5px 9px" onclick="viewStudentData('${p.studentId}')">📊</button>
+                <button class="btn-ghost" style="font-size:12px;padding:5px 9px" onclick="openEditPlan('${p.studentId}')">✏️</button>
+              </div>
+            </div>`).join('')+`</div>`;
+      }
+    }
+  } catch(e){
+    sec.innerHTML=`<p style="font-size:13px;color:var(--red)">שגיאה בטעינה</p>`;
+  }
+}
+
+async function respondToRequest(studentId, decision){
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'respondEditRequest',studentId,decision})});
+    showToast(decision==='approved'?'✓ הרשאה אושרה':'✕ בקשה נדחתה');
+    loadTeacherHome();
+  }catch(e){}
+}
+
+// ── TEACHER EDIT PLAN ──────────────────────────────────
+
+async function openEditPlan(studentId){
+  try{
+    const res=await fetch(SHEETS_URL+'?studentId='+encodeURIComponent(studentId));
+    const data=await res.json();
+    if(data.status==='ok'&&data.plan){
+      editingPlan=data.plan;
+      document.getElementById('edit-sub').textContent=data.plan.studentName||studentId;
+      document.getElementById('edit-main-goal').value=data.plan.mainGoal||'';
+      document.getElementById('edit-why-goal').value=data.plan.why||'';
+      editGoals=data.plan.goals.map(g=>({...g,_text:g.text,_freq:g.freq,_dur:g.dur,_time:g.time}));
+      renderEditGoals();
+      showPhase('phase-edit');
+    }
+  }catch(e){alert('שגיאה בטעינה');}
+}
+
+function addEditGoal(){
+  saveEditGoalValues();
+  editGoals.push({id:'eg'+Date.now(),days:[],_text:'',_freq:'',_dur:'',_time:''});
+  renderEditGoals();
+}
+
+function removeEditGoal(id){
+  saveEditGoalValues();
+  editGoals=editGoals.filter(g=>g.id!==id);
+  renderEditGoals();
+}
+
+function toggleEditDay(goalId,di){
+  saveEditGoalValues();
+  const g=editGoals.find(g=>g.id===goalId);
+  if(!g)return;
+  if(g.days.includes(di))g.days=g.days.filter(d=>d!==di);
+  else g.days.push(di);
+  renderEditGoals();
+}
+
+function saveEditGoalValues(){
+  editGoals.forEach(g=>{
+    const t=document.getElementById('egt-'+g.id);
+    const f=document.getElementById('egf-'+g.id);
+    const d=document.getElementById('egd-'+g.id);
+    const tm=document.getElementById('egtm-'+g.id);
+    if(t)g._text=t.value;if(f)g._freq=f.value;if(d)g._dur=d.value;if(tm)g._time=tm.value;
+  });
+}
+
+function renderEditGoals(){
+  document.getElementById('edit-goals-container').innerHTML=editGoals.map((g,i)=>`
+    <div class="goal-block">
+      <button class="remove-btn" onclick="removeEditGoal('${g.id}')">✕</button>
+      <div class="goal-num">${i+1}</div>
+      <div class="field"><input type="text" id="egt-${g.id}" placeholder="מטרה..." value="${esc(g._text||'')}"></div>
+      <div class="grid2" style="margin-bottom:8px">
+        <input type="text" id="egf-${g.id}" placeholder="תדירות" value="${esc(g._freq||'')}">
+        <input type="text" id="egd-${g.id}" placeholder="משך" value="${esc(g._dur||'')}">
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="field-label">ימים</label>
+        <div class="days-grid">${DAY_SHORT.map((d,di)=>`<div class="day-chip${(g.days||[]).includes(di)?' selected':''}" onclick="toggleEditDay('${g.id}',${di})">${d}</div>`).join('')}</div>
+      </div>
+      <div><label class="field-label">שעת התרעה</label><input type="time" id="egtm-${g.id}" value="${g._time||''}" style="font-size:13px"></div>
+    </div>`).join('');
+}
+
+async function saveEditedPlan(){
+  saveEditGoalValues();
+  const plan={...editingPlan,
+    mainGoal:document.getElementById('edit-main-goal').value.trim(),
+    why:document.getElementById('edit-why-goal').value.trim(),
+    goals:editGoals.map((g,i)=>({id:'g'+i,text:g._text.trim(),freq:g._freq.trim(),dur:g._dur.trim(),days:g.days.length>0?g.days:DAYS.map((_,i)=>i),time:g._time,index:i+1})).filter(g=>g.text)
+  };
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'savePlan',plan})});
+    showToast('✓ תכנית עודכנה!');
+    showPhase('phase-teacher-home');
+  }catch(e){alert('שגיאה בשמירה');}
+}
+
+// ── TEACHER BUILD ──────────────────────────────────────
+
+function addGoal(){
+  goals.push({id:Date.now()+Math.random(),days:[],_text:'',_freq:'',_dur:'',_time:''});
+  renderGoals();
+}
+function removeGoal(id){saveGoalValues();goals=goals.filter(g=>g.id!==id);renderGoals();}
+function toggleDay(goalId,di){
+  saveGoalValues();
+  const g=goals.find(g=>g.id===goalId);
+  if(!g)return;
+  if(g.days.includes(di))g.days=g.days.filter(d=>d!==di);
+  else g.days.push(di);
+  renderGoals();
+}
+function saveGoalValues(){
+  goals.forEach(g=>{
+    const t=document.getElementById('gt-'+g.id),f=document.getElementById('gf-'+g.id),d=document.getElementById('gd-'+g.id),tm=document.getElementById('gtime-'+g.id);
+    if(t)g._text=t.value;if(f)g._freq=f.value;if(d)g._dur=d.value;if(tm)g._time=tm.value;
+  });
+}
+function renderGoals(){
+  document.getElementById('goals-container').innerHTML=goals.map((g,i)=>`
+    <div class="goal-block">
+      <button class="remove-btn" onclick="removeGoal(${g.id})">✕</button>
+      <div class="goal-num">${i+1}</div>
+      <div class="field"><input type="text" id="gt-${g.id}" placeholder="תאר את המטרה..." value="${esc(g._text)}"></div>
+      <div class="grid2" style="margin-bottom:8px">
+        <input type="text" id="gf-${g.id}" placeholder="תדירות" value="${esc(g._freq)}">
+        <input type="text" id="gd-${g.id}" placeholder="משך זמן" value="${esc(g._dur)}">
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="field-label">ימים לביצוע</label>
+        <div class="days-grid">${DAY_SHORT.map((d,di)=>`<div class="day-chip${g.days.includes(di)?' selected':''}" onclick="toggleDay(${g.id},${di})">${d}</div>`).join('')}</div>
+      </div>
+      <div><label class="field-label">שעת התרעה</label><input type="time" id="gtime-${g.id}" value="${g._time}" style="font-size:13px"></div>
+    </div>`).join('');
+}
+
+async function savePlan(){
+  saveGoalValues();
+  const studentName=document.getElementById('student-name').value.trim();
+  const studentId=(document.getElementById('student-id').value.trim()||studentName).replace(/\s+/g,'-');
+  const mainGoal=document.getElementById('main-goal').value.trim();
+  if(!studentId||!mainGoal){alert('נא למלא שם ומטרה ראשית');return;}
+  const goalList=goals.map((g,i)=>({id:'g'+i,text:g._text.trim(),freq:g._freq.trim(),dur:g._dur.trim(),days:g.days.length>0?g.days:DAYS.map((_,i)=>i),time:g._time,index:i+1})).filter(g=>g.text);
+  if(!goalList.length){alert('נא להוסיף לפחות מטרה אחת');return;}
+  const plan={studentId,studentName,mainGoal,why:document.getElementById('why-goal').value.trim(),goals:goalList,createdAt:new Date().toLocaleDateString('he-IL'),weeks:[]};
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='⏳ שומר...';
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'savePlan',plan})});
+    document.getElementById('saved-name').textContent=studentName;
+    document.getElementById('saved-goal').textContent=mainGoal;
+    document.getElementById('saved-id').textContent=studentId;
+    // Reset form
+    goals=[];addGoal();addGoal();
+    document.getElementById('student-name').value='';
+    document.getElementById('student-id').value='';
+    document.getElementById('main-goal').value='';
+    document.getElementById('why-goal').value='';
+    showPhase('phase-saved');
+  }catch(e){alert('שגיאה. נסה שנית.');}
+  finally{btn.disabled=false;btn.textContent='💾 שמור ושתף';}
+}
+
+// ── STUDENT LOGIN ──────────────────────────────────────
+
+function startStudent(){showPhase('phase-student-login');}
+
+async function loginStudent(){
+  const id=document.getElementById('login-id').value.trim();
+  if(!id)return;
+  const err=document.getElementById('login-error');
+  const load=document.getElementById('login-loading');
+  const btn=document.getElementById('login-btn');
+  err.style.display='none';load.style.display='flex';btn.disabled=true;
+  try{
+    const res=await fetch(SHEETS_URL+'?studentId='+encodeURIComponent(id));
+    const data=await res.json();
+    if(data.status==='ok'&&data.plan){
+      currentPlan=data.plan;currentStudentId=id;
+      renderTrack(data.plan);showPhase('phase-track');
+      checkNotif();startNotifChecker(data.plan);
+    } else {
+      err.textContent='מזהה לא נמצא. בדוק עם המורה.';err.style.display='block';
+    }
+  }catch(e){err.textContent='שגיאה בחיבור. נסה שנית.';err.style.display='block';}
+  finally{load.style.display='none';btn.disabled=false;}
+}
+
+// ── TRACK ──────────────────────────────────────────────
+
+function getTodayIdx(){return new Date().getDay();}
+
+function renderTrack(plan){
+  document.getElementById('track-name').textContent=plan.studentName||plan.studentId;
+  document.getElementById('track-goal-sub').textContent=plan.mainGoal;
+  document.getElementById('track-week-badge').textContent='שבוע '+((plan.weeks||[]).length+1);
+
+  // Edit request status bar
+  const bar=document.getElementById('edit-request-bar');
+  if(plan.editRequest){
+    if(plan.editRequest.status==='pending'){
+      bar.style.display='block';
+      bar.innerHTML=`<div class="notif-bar" style="background:var(--amber-light);border-color:var(--amber);color:var(--amber)">⏳ בקשת העריכה ממתינה לאישור המורה</div>`;
+    } else if(plan.editRequest.status==='approved'){
+      bar.style.display='block';
+      bar.innerHTML=`<div class="notif-bar" style="background:var(--green-light);border-color:var(--green);color:var(--green-text);cursor:pointer" onclick="openStudentEdit()">✓ הרשאת עריכה אושרה! לחץ כאן לעריכה</div>`;
+    } else if(plan.editRequest.status==='rejected'){
+      bar.style.display='block';
+      bar.innerHTML=`<div class="notif-bar" style="background:var(--red-light);border-color:var(--red);color:var(--red)">✕ בקשת העריכה נדחתה על ידי המורה</div>`;
+    }
+  } else { bar.style.display='none'; }
+
+  const todayIdx=getTodayIdx();
+  const byDay={};for(let i=0;i<7;i++)byDay[i]=[];
+  plan.goals.forEach(g=>{
+    const gdays=g.days&&g.days.length>0?g.days:[0,1,2,3,4,5,6];
+    gdays.forEach(di=>byDay[di].push(g));
+  });
+  const ordered=[todayIdx,...[0,1,2,3,4,5,6].filter(i=>i!==todayIdx)];
+  let html='';
+  ordered.forEach(di=>{
+    const dg=byDay[di];if(!dg.length)return;
+    const isToday=di===todayIdx;
+    html+=`<div class="day-section">
+      <div class="day-header ${isToday?'today':'other'}">
+        <span>${isToday?'📅 ':''}יום ${DAYS[di]}${isToday?' — היום':''}</span>
+        ${isToday?`<span class="tag tag-green" style="font-size:11px">${new Date().toLocaleDateString('he-IL')}</span>`:''}
+      </div>
+      ${dg.map(g=>`
+        <div class="goal-row" id="row-${g.id}-${di}">
+          <label><input type="checkbox" id="done-${g.id}-${di}" onchange="onCheck('${g.id}',${di})">
+          <span class="goal-text" id="txt-${g.id}-${di}">${g.text}${g.dur?` <span style='font-size:11px;color:var(--text2)'>· ${g.dur}</span>`:''}</span></label>
+          ${g.time?`<span class="time-badge">⏰ ${g.time}</span>`:''}
+        </div>`).join('')}
+    </div>`;
+  });
+  html+=`<div class="card"><div class="sec-label">הערות</div>`;
+  plan.goals.forEach(g=>{html+=`<div style="margin-bottom:10px"><label class="field-label">${g.text}</label><textarea id="note-${g.id}" placeholder="קשיים, תובנות..." style="min-height:40px;font-size:13px"></textarea></div>`;});
+  html+=`</div>`;
+  document.getElementById('track-container').innerHTML=html;
+}
+
+function onCheck(goalId,di){
+  const cb=document.getElementById(`done-${goalId}-${di}`);
+  const row=document.getElementById(`row-${goalId}-${di}`);
+  const txt=document.getElementById(`txt-${goalId}-${di}`);
+  if(cb.checked){row.classList.add('done');if(txt)txt.classList.add('strike');showToast(CHEERS[Math.floor(Math.random()*CHEERS.length)]);}
+  else{row.classList.remove('done');if(txt)txt.classList.remove('strike');}
+}
+
+// ── EDIT REQUEST ───────────────────────────────────────
+
+function requestEdit(){showPhase('phase-request-edit');}
+
+async function sendEditRequest(){
+  const reason=document.getElementById('edit-reason').value.trim();
+  if(!reason){alert('נא לכתוב סיבה');return;}
+  const btn=document.getElementById('send-request-btn');
+  const status=document.getElementById('request-status');
+  btn.disabled=true;status.style.display='block';status.textContent='שולח...';
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'requestEdit',studentId:currentStudentId,reason})});
+    showToast('✓ הבקשה נשלחה למורה!');
+    // Update local plan
+    currentPlan={...currentPlan,editRequest:{status:'pending',reason}};
+    renderTrack(currentPlan);
+    showPhase('phase-track');
+  }catch(e){status.textContent='שגיאה. נסה שנית.';}
+  finally{btn.disabled=false;}
+}
+
+// ── STUDENT EDIT ───────────────────────────────────────
+
+function openStudentEdit(){
+  document.getElementById('s-edit-main').value=currentPlan.mainGoal||'';
+  document.getElementById('s-edit-why').value=currentPlan.why||'';
+  studentEditGoals=currentPlan.goals.map(g=>({...g,_text:g.text,_freq:g.freq,_dur:g.dur,_time:g.time}));
+  renderStudentEditGoals();
+  showPhase('phase-student-edit');
+}
+
+function addStudentEditGoal(){
+  saveStudentEditValues();
+  studentEditGoals.push({id:'se'+Date.now(),days:[],_text:'',_freq:'',_dur:'',_time:''});
+  renderStudentEditGoals();
+}
+
+function removeStudentEditGoal(id){
+  saveStudentEditValues();
+  studentEditGoals=studentEditGoals.filter(g=>g.id!==id);
+  renderStudentEditGoals();
+}
+
+function toggleStudentEditDay(goalId,di){
+  saveStudentEditValues();
+  const g=studentEditGoals.find(g=>g.id===goalId);
+  if(!g)return;
+  if(g.days.includes(di))g.days=g.days.filter(d=>d!==di);
+  else g.days.push(di);
+  renderStudentEditGoals();
+}
+
+function saveStudentEditValues(){
+  studentEditGoals.forEach(g=>{
+    const t=document.getElementById('set-'+g.id),f=document.getElementById('sef-'+g.id),d=document.getElementById('sed-'+g.id),tm=document.getElementById('setm-'+g.id);
+    if(t)g._text=t.value;if(f)g._freq=f.value;if(d)g._dur=d.value;if(tm)g._time=tm.value;
+  });
+}
+
+function renderStudentEditGoals(){
+  document.getElementById('s-edit-goals').innerHTML=studentEditGoals.map((g,i)=>`
+    <div class="goal-block">
+      <button class="remove-btn" onclick="removeStudentEditGoal('${g.id}')">✕</button>
+      <div class="goal-num">${i+1}</div>
+      <div class="field"><input type="text" id="set-${g.id}" placeholder="מטרה..." value="${esc(g._text||'')}"></div>
+      <div class="grid2" style="margin-bottom:8px">
+        <input type="text" id="sef-${g.id}" placeholder="תדירות" value="${esc(g._freq||'')}">
+        <input type="text" id="sed-${g.id}" placeholder="משך" value="${esc(g._dur||'')}">
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="field-label">ימים</label>
+        <div class="days-grid">${DAY_SHORT.map((d,di)=>`<div class="day-chip${(g.days||[]).includes(di)?' selected':''}" onclick="toggleStudentEditDay('${g.id}',${di})">${d}</div>`).join('')}</div>
+      </div>
+      <div><label class="field-label">שעת התרעה</label><input type="time" id="setm-${g.id}" value="${g._time||''}" style="font-size:13px"></div>
+    </div>`).join('');
+}
+
+async function saveStudentEdit(){
+  saveStudentEditValues();
+  const plan={...currentPlan,
+    mainGoal:document.getElementById('s-edit-main').value.trim(),
+    why:document.getElementById('s-edit-why').value.trim(),
+    goals:studentEditGoals.map((g,i)=>({id:'g'+i,text:g._text.trim(),freq:g._freq.trim(),dur:g._dur.trim(),days:g.days.length>0?g.days:DAYS.map((_,i)=>i),time:g._time,index:i+1})).filter(g=>g.text),
+    editRequest:{status:'used'}
+  };
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'savePlan',plan})});
+    currentPlan=plan;
+    renderTrack(plan);
+    showToast('✓ מטרות עודכנו!');
+    showPhase('phase-track');
+  }catch(e){alert('שגיאה בשמירה');}
+}
+
+// ── NOTIFICATIONS ──────────────────────────────────────
+
+function checkNotif(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='default')document.getElementById('notif-bar').style.display='flex';
+}
+function requestNotif(){
+  Notification.requestPermission().then(p=>{
+    document.getElementById('notif-bar').style.display='none';
+    if(p==='granted'&&currentPlan)startNotifChecker(currentPlan);
+  });
+}
+function startNotifChecker(plan){
+  if(notifInterval)clearInterval(notifInterval);
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  notifInterval=setInterval(()=>{
+    const now=new Date();
+    const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const today=getTodayIdx();
+    plan.goals.forEach(g=>{
+      if(!g.time)return;
+      const gd=g.days&&g.days.length>0?g.days:[0,1,2,3,4,5,6];
+      if(!gd.includes(today))return;
+      if(t===g.time){
+        const k='notif_'+g.id+'_'+now.toDateString()+'_'+g.time;
+        if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');new Notification('⏰ זמן המטרה שלך!',{body:g.text});}
+      }
+    });
+  },30000);
+}
+
+// ── SUBMIT WEEK ────────────────────────────────────────
+
+async function submitWeek(){
+  showPhase('phase-feedback');
+  const weekNum=(currentPlan.weeks||[]).length+1;
+  document.getElementById('fb-label').textContent='שבוע '+weekNum;
+  document.getElementById('loading-fb').style.display='flex';
+  document.getElementById('feedback-container').innerHTML='';
+  document.getElementById('summary-section').style.display='none';
+  const plan=currentPlan;
+  const results=plan.goals.map(g=>{
+    const gd=g.days&&g.days.length>0?g.days:[0,1,2,3,4,5,6];
+    const done=gd.filter(di=>document.getElementById('done-'+g.id+'-'+di)?.checked).map(di=>DAYS[di]);
+    const note=document.getElementById('note-'+g.id)?.value.trim()||'';
+    return{goalId:g.id,goal:g.text,freq:g.freq,dur:g.dur,doneDays:done,totalDays:gd.length,note};
+  });
+  const totalDone=results.reduce((s,r)=>s+r.doneDays.length,0);
+  const totalPlanned=results.reduce((s,r)=>s+r.totalDays,0);
+  const pct=totalPlanned>0?Math.round(totalDone/totalPlanned*100):0;
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'saveWeek',date:new Date().toLocaleDateString('he-IL'),
+        studentName:plan.studentName,studentId:currentStudentId,mainGoal:plan.mainGoal,weekNum,pct,results})});
+    currentPlan={...plan,weeks:[...(plan.weeks||[]),{weekNum,date:new Date().toLocaleDateString('he-IL'),results,pct}]};
+    document.getElementById('loading-fb').style.display='none';
+    const barColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+    const doneList=results.filter(r=>r.doneDays.length>0);
+    const notDoneList=results.filter(r=>r.doneDays.length===0);
+    document.getElementById('feedback-container').innerHTML=`
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500">סיכום שבוע ${weekNum}</span>
+          <span style="font-size:15px;font-weight:500">${pct}%</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%;background:${barColor}"></div></div>
+        <div style="font-size:12px;color:var(--text2)">${totalDone} מתוך ${totalPlanned} יחידות</div>
+      </div>
+      <div class="card" style="background:var(--green-light);border-color:var(--green);margin-bottom:10px">
+        <div style="font-size:14px;font-weight:500;color:var(--green-text)">✓ הנתונים נשלחו למורה!</div>
+      </div>
+      ${doneList.length>0?`<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:8px">בוצע 💪</div>${doneList.map(r=>`<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)">${r.goal} — ${r.doneDays.join(', ')}</div>`).join('')}</div>`:''}
+      ${notDoneList.length>0?`<div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:8px">לשבוע הבא 🎯</div>${notDoneList.map(r=>`<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)">${r.goal}</div>`).join('')}</div>`:''}`;
+    document.getElementById('copy-text').textContent=buildSummary(plan,results,weekNum,pct);
+    document.getElementById('summary-section').style.display='block';
+  }catch(e){
+    document.getElementById('loading-fb').style.display='none';
+    document.getElementById('feedback-container').innerHTML=`<p style="color:var(--red);font-size:13px">שגיאה. נסה שנית.</p>`;
+  }
+}
+
+function buildSummary(plan,results,weekNum,pct){
+  const lines=[`📋 סיכום שבוע ${weekNum} — ${plan.studentName||plan.studentId}`,`🎯 מטרה: ${plan.mainGoal}`,`📊 ביצוע: ${pct}%`,``];
+  results.forEach(r=>{
+    lines.push(`${r.doneDays.length===r.totalDays?'✅':r.doneDays.length>0?'🔶':'❌'} ${r.goal}`);
+    lines.push(r.doneDays.length>0?`   בוצע ב: ${r.doneDays.join(', ')}`:`   לא בוצע`);
+    if(r.note)lines.push(`   הערות: ${r.note}`);
+  });
+  return lines.join('\n');
+}
+
+function copySummary(){
+  navigator.clipboard.writeText(document.getElementById('copy-text').textContent).then(()=>{
+    const btn=document.getElementById('copy-btn');btn.textContent='✓ הועתק';
+    setTimeout(()=>{btn.textContent='📋 העתק';},2000);
+  });
+}
+
+async function startNewWeek(){
+  try{
+    const res=await fetch(SHEETS_URL+'?studentId='+encodeURIComponent(currentStudentId));
+    const data=await res.json();
+    if(data.status==='ok'&&data.plan){currentPlan=data.plan;renderTrack(data.plan);}
+  }catch(e){}
+  showPhase('phase-track');
+}
+
+// ── TEACHER VIEW STUDENT DATA ──────────────────────────
+
+async function viewStudentData(studentId){
+  try{
+    const res=await fetch(SHEETS_URL+'?studentId='+encodeURIComponent(studentId));
+    const data=await res.json();
+    if(data.status==='ok'&&data.plan){
+      const plan=data.plan;const weeks=plan.weeks||[];
+      const avg=weeks.length?Math.round(weeks.reduce((s,w)=>s+w.pct,0)/weeks.length):0;
+      document.getElementById('sd-name').textContent=plan.studentName||studentId;
+      document.getElementById('sd-goal').textContent=plan.mainGoal;
+      document.getElementById('student-data-container').innerHTML=`
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">שבועות</div><div class="stat-num">${weeks.length}</div></div>
+          <div class="stat-card"><div class="stat-label">ממוצע</div><div class="stat-num">${avg}%</div></div>
+          <div class="stat-card"><div class="stat-label">אחרון</div><div class="stat-num">${weeks.length?weeks[weeks.length-1].pct+'%':'—'}</div></div>
+        </div>
+        ${weeks.length===0?'<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px">אין נתונים עדיין</div>':''}
+        ${weeks.map(w=>{
+          const bc=w.pct>=80?'var(--green)':w.pct>=50?'var(--amber)':'var(--red)';
+          const tc=w.pct>=80?'tag-green':w.pct>=50?'tag-amber':'tag-red';
+          return`<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:500">שבוע ${w.weekNum} · ${w.date}</span><span class="tag ${tc}">${w.pct}%</span></div><div class="prog-wrap"><div class="prog-bar" style="width:${w.pct}%;background:${bc}"></div></div><div style="margin-top:8px">${w.results.map(r=>`<div class="week-row"><span>${r.goal}</span><span style="color:var(--text2)">${r.doneDays.length}/${r.totalDays}</span></div>`).join('')}</div></div>`;
+        }).join('')}`;
+      showPhase('phase-student-data');
+    }
+  }catch(e){alert('שגיאה בטעינה');}
+}
+
+
+function showInstallBanner() {
+  if (localStorage.getItem('installBannerDismissed')) return;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isStandalone) return; // Already installed
+  
+  const steps = document.getElementById('install-steps');
+  if (isIOS) {
+    steps.innerHTML = '📱 <strong>אייפון:</strong><br>1. לחץ על כפתור השיתוף ↑ בספארי<br>2. בחר "הוסף למסך הבית"<br>3. לחץ "הוסף"';
+  } else if (isAndroid) {
+    steps.innerHTML = '🤖 <strong>אנדרואיד:</strong><br>1. לחץ על שלוש הנקודות ⋮ בכרום<br>2. בחר "הוסף למסך הבית"<br>3. לחץ "הוסף"';
+  } else {
+    steps.innerHTML = '💻 <strong>מחשב:</strong><br>התרעות עובדות ישירות בדפדפן — אשר את הבקשה כשתופיע';
+  }
+  
+  setTimeout(() => {
+    document.getElementById('install-banner').classList.add('show');
+  }, 2000);
+}
+
+function dismissInstallBanner(permanent) {
+  document.getElementById('install-banner').classList.remove('show');
+  if (permanent) localStorage.setItem('installBannerDismissed', '1');
+}
+
+
+function addAllToCalendar() {
+  if (!currentPlan || !currentPlan.goals) return;
+  const goalsWithTime = currentPlan.goals.filter(g => g.time);
+  if (!goalsWithTime.length) {
+    alert('לא הוגדרו שעות למטרות. ערוך את התכנית והוסף שעות.');
+    return;
+  }
+  goalsWithTime.forEach(g => {
+    const [hours, minutes] = g.time.split(':');
+    const now = new Date();
+    // Find next occurrence of each day
+    const days = g.days && g.days.length > 0 ? g.days : [0,1,2,3,4,5,6];
+    const firstDay = days[0];
+    const date = new Date();
+    const todayDay = date.getDay();
+    let daysUntil = (firstDay - todayDay + 7) % 7;
+    if (daysUntil === 0) daysUntil = 0;
+    date.setDate(date.getDate() + daysUntil);
+    date.setHours(parseInt(hours), parseInt(minutes), 0);
+    const endDate = new Date(date);
+    endDate.setMinutes(endDate.getMinutes() + (parseInt(g.dur) || 30));
+    
+    const pad = n => String(n).padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+    
+    // Recurrence days mapping (Google: SU,MO,TU,WE,TH,FR,SA)
+    const gcalDays = ['SU','MO','TU','WE','TH','FR','SA'];
+    const rruleDays = days.map(d => gcalDays[d]).join(',');
+    const rrule = `RRULE:FREQ=WEEKLY;BYDAY=${rruleDays}`;
+    
+    const title = encodeURIComponent(`⏰ ${g.text}`);
+    const details = encodeURIComponent(`מטרה: ${g.text}\n${g.freq ? 'תדירות: ' + g.freq : ''}\n${g.dur ? 'משך: ' + g.dur : ''}`);
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(date)}/${fmt(endDate)}&details=${details}&recur=${encodeURIComponent(rrule)}`;
+    window.open(url, '_blank');
+  });
+}
+
+init();
+showInstallBanner();
+</script>
+</body>
+</html>
